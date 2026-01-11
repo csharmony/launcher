@@ -12,9 +12,6 @@ public static class Terminal
     private const string ErrorColor = "red";
     private const string DebugColor = "deepskyblue1";
 
-    private const string Prefix = $"[{SecondaryColor}][[[/]" + $"[{PrimaryColor}]Launcher[/]" +
-                                  $"[{SecondaryColor}]]][/]";
-
     public static void PrintWelcome()
     {
         AnsiConsole.MarkupLine(
@@ -23,30 +20,30 @@ public static class Terminal
 
     public static void Print(object message)
     {
-        AnsiConsole.MarkupLine($"{Prefix} [white on {InfoColor}] ? [/] {Markup.Escape(message.ToString())}");
+        AnsiConsole.MarkupLine($"[white on {InfoColor}] ? [/] {Markup.Escape(message.ToString())}");
     }
 
     public static void Success(object message)
     {
         AnsiConsole.MarkupLine(
-            $"{Prefix} [white on {SuccessColor}] ✓ [/] [{SuccessColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {SuccessColor}] ✓ [/] [{SuccessColor}]{Markup.Escape(message.ToString())}[/]");
     }
 
     public static void Warning(object message)
     {
         AnsiConsole.MarkupLine(
-            $"{Prefix} [white on {WarningColor}] ! [/] [{WarningColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {WarningColor}] ! [/] [{WarningColor}]{Markup.Escape(message.ToString())}[/]");
     }
 
     public static void Error(object message)
     {
         AnsiConsole.MarkupLine(
-            $"{Prefix} [white on {ErrorColor}] X [/] [{ErrorColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {ErrorColor}] X [/] [{ErrorColor}]{Markup.Escape(message.ToString())}[/]");
     }
 
     public static void Debug(object message)
     {
         AnsiConsole.MarkupLine(
-            $"{Prefix} [white on {DebugColor}] ? [/] [{DebugColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {DebugColor}] ? [/] [{DebugColor}]{Markup.Escape(message.ToString())}[/]");
     }
 }

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Downloader" Version="4.0.3" />
+    <PackageReference Include="NetCoreServer" Version="8.0.7" />
     <PackageReference Include="Refit" Version="9.0.2" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="9.0.2" />
     <PackageReference Include="Spectre.Console" Version="0.54.0" />

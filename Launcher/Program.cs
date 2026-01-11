@@ -11,3 +11,8 @@ if (Debugger.IsAttached)
     Terminal.Error("This is an error message");
     Terminal.Debug("This is a debug message");
 }
+
+if (Token.TokenFileExists())
+    Token.Verify();
+else
+    Token.Get();
