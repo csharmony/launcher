@@ -4,7 +4,7 @@ namespace Launcher.Helpers;
 
 public static class Terminal
 {
-    private const string PrimaryColor = "DeepPink1_1";
+    private const string PrimaryColor = "#F58459";
     private const string SecondaryColor = "gray";
     private const string InfoColor = "gray";
     private const string SuccessColor = "green";
@@ -15,7 +15,7 @@ public static class Terminal
     public static void PrintWelcome()
     {
         AnsiConsole.MarkupLine(
-            $"[{PrimaryColor}]Launcher[/] [black on {PrimaryColor}] ALPHA [/] [{SecondaryColor}]made by[/] [black on {PrimaryColor}] heapy [/]");
+            $"[{PrimaryColor}]Harmony Launcher[/] [{SecondaryColor}]made by[/] [{PrimaryColor}]heapy[/]");
     }
 
     public static void Print(object message)
