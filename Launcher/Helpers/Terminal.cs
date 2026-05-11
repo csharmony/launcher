@@ -26,7 +26,7 @@ public static class Terminal
     public static void Success(object message)
     {
         AnsiConsole.MarkupLine(
-            $"[white on {SuccessColor}] ✓ [/] [{SuccessColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {SuccessColor}] + [/] [{SuccessColor}]{Markup.Escape(message.ToString())}[/]");
     }
 
     public static void Warning(object message)
