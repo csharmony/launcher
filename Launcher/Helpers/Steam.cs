@@ -5,6 +5,8 @@ namespace Launcher.Helpers;
 
 public static class Steam
 {
+    public static string GamePath = "./";
+
     public static string? GetGamePath(int appId)
     {
         string? steamPath = GetSteamInstallPath();
