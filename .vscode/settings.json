@@ -1,0 +1,17 @@
+{
+  "VsCodeTaskButtons.showCounter": false,
+  "VsCodeTaskButtons.tasks": [
+    {
+      "label": "$(bug) Build Debug",
+      "task": "build-debug",
+      "tooltip": "Run dotnet build for x64 Debug configuration",
+      "alignment": "left"
+    },
+    {
+      "label": "$(rocket) Build Release",
+      "task": "build-release",
+      "tooltip": "Run dotnet build for x64 Release configuration",
+      "alignment": "left"
+    }
+  ]
+}
