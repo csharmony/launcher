@@ -12,6 +12,17 @@ if (Debugger.IsAttached)
     Terminal.Debug("This is a debug message");
 }
 
+var gamePath = Steam.GetGamePath(4465480);
+if (string.IsNullOrEmpty(gamePath))
+{
+    Terminal.Warning("Couldn't locate CS:GO (4465480). Using current dircetory...");
+    gamePath = "./";
+}
+else
+{
+    Terminal.Print($"Found CS:GO (4465480): {gamePath}");
+}
+
 try
 {
     var manifestResponse = await Api.Launcher.GetManifest();
@@ -20,14 +31,13 @@ try
         try
         {
             var downloadResponse = await Api.Launcher.GetDownload(file.Path);
+            var fullFilePath = Path.Combine(gamePath, file.Path);
+            var directoryPath = Path.GetDirectoryName(fullFilePath);
 
-            var directory = Path.GetDirectoryName(file.Path);
-            if (!string.IsNullOrEmpty(directory))
-                Directory.CreateDirectory(directory);
+            if (!string.IsNullOrEmpty(directoryPath))
+                Directory.CreateDirectory(directoryPath);
 
-            // assuming launcher is where csgo.exe is
-            // TODO: scan for CS:GO folder using registry(?)
-            await using var fileStream = File.Create(file.Path);
+            await using var fileStream = File.Create(fullFilePath);
             await downloadResponse.CopyToAsync(fileStream);
 
             Terminal.Success($"Successfully downloaded: {file.Path}");
