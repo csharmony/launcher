@@ -3,9 +3,11 @@
   "configurations": [
     {
       "name": "Debug",
-      "type": "dotnet",
+      "type": "coreclr",
       "request": "launch",
-      "projectPath": "${workspaceFolder}/Launcher/Launcher.csproj"
+      "program": "${workspaceFolder}/Launcher/bin/x64/Debug/net10.0/win-x64/Launcher.dll",
+      "preLaunchTask": "build",
+      "console": "externalTerminal"
     }
   ]
 }
