@@ -1,0 +1,79 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+jobs:
+  draft-release:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - run: dotnet restore Launcher.slnx
+
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -o ./publish
+
+      - name: Calculate MD5
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash -Algorithm MD5 ./publish/Launcher.exe).Hash.ToLower()
+          echo "MD5_HASH=$hash" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Upload to VirusTotal
+        id: vt
+        uses: cssnr/virustotal-action@v2
+        continue-on-error: true
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          file_globs: ./publish/Launcher.exe
+          update_release: false
+          sha256: true
+          summary: false
+
+      - name: Compose release body
+        shell: pwsh
+        run: |
+          $tag = '${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}'
+          $notes = gh api /repos/${{ github.repository }}/releases/generate-notes -f tag_name=$tag --jq '.body'
+
+          Set-Content -Path body.md -Value '> [!IMPORTANT]'
+          Add-Content -Path body.md -Value '> .NET Runtime 10.0 is required to run the launcher. Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-10.0.9-windows-x64-installer).'
+          Add-Content -Path body.md -Value ''
+          Add-Content -Path body.md -Value $notes
+          Add-Content -Path body.md -Value ''
+
+          $vtResult = '${{ steps.vt.outputs.json }}'
+          if ($vtResult) {
+            $vtJson = $vtResult | ConvertFrom-Json
+            $vtLink = $vtJson[0].link
+          } else {
+            $vtLink = 'Upload failed'
+          }
+
+          Add-Content -Path body.md -Value "**MD5 Hash:** ``${{ env.MD5_HASH }}``"
+          Add-Content -Path body.md -Value "**VirusTotal:** $vtLink"
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+          draft: true
+          body_path: body.md
+          prerelease: ${{ github.event.inputs.prerelease == 'true' || false }}
+          files: ./publish/Launcher.exe
