@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 using Refit;
 
 namespace Launcher.Helpers;
@@ -29,7 +30,7 @@ public interface ILauncher
 
 public static class Api
 {
-    public static string Url = "http://localhost:3000/api";
+    public static string Url = Debugger.IsAttached ? "http://localhost:3000/api" : "https://harmony.heapy.xyz/api";
     private static readonly RefitSettings Settings = new(new NewtonsoftJsonContentSerializer());
     public static ILauncher Launcher = RestService.For<ILauncher>(Url, Settings);
 }

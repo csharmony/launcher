@@ -36,3 +36,8 @@ catch (Exception e)
     if (Debugger.IsAttached)
         Terminal.Debug(e.InnerException?.Message ?? e.Message);
 }
+
+await Game.Launch("harmony_csgo.exe");
+
+Terminal.Print("Closing launcher in 5 seconds...");
+await Task.Delay(5000);
