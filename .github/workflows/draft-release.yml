@@ -57,19 +57,21 @@ jobs:
           Set-Content -Path body.md -Value '> [!IMPORTANT]'
           Add-Content -Path body.md -Value '> .NET Runtime 10.0 is required to run the launcher. Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-10.0.9-windows-x64-installer).'
           Add-Content -Path body.md -Value ''
+
+          Add-Content -Path body.md -Value '## Changelog'
           Add-Content -Path body.md -Value $notes
           Add-Content -Path body.md -Value ''
 
+          Add-Content -Path body.md -Value '## VirusTotal'
+          Add-Content -Path body.md -Value "**MD5 Hash:** ``${{ env.MD5_HASH }}``"
           $vtResult = '${{ steps.vt.outputs.json }}'
           if ($vtResult) {
             $vtJson = $vtResult | ConvertFrom-Json
             $vtLink = $vtJson[0].link
+            Add-Content -Path body.md -Value "[**Check the analysis here.**]($vtLink)"
           } else {
-            $vtLink = 'Upload failed'
+            Add-Content -Path body.md -Value "Failed to upload to VirusTotal."
           }
-
-          Add-Content -Path body.md -Value "**MD5 Hash:** ``${{ env.MD5_HASH }}``"
-          Add-Content -Path body.md -Value "**VirusTotal:** $vtLink"
 
       - uses: softprops/action-gh-release@v3
         with:
