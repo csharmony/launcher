@@ -48,6 +48,8 @@ jobs:
 
       - name: Compose release body
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $tag = '${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}'
           $notes = gh api /repos/${{ github.repository }}/releases/generate-notes -f tag_name=$tag --jq '.body'
