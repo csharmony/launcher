@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+      title:
+        description: 'Release title'
+        required: true
+      description:
+        description: 'Release description'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - run: dotnet restore Launcher.slnx
+
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -o ./publish
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event.inputs.title || github.ref_name }}
+          body: ${{ github.event.inputs.description || '' }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' || false }}
+          files: ./publish/*.exe
