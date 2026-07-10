@@ -26,9 +26,9 @@ else
 try
 {
     var manifestResponse = await Api.Launcher.GetManifest();
-    await FileManager.ValidateFiles(manifestResponse.Files);
-    await FileManager.DownloadMissingFiles();
-    await FileManager.DownloadOutdatedFiles();
+    await Files.Validate(manifestResponse.Files);
+    await Files.Download(Files.Missing);
+    await Files.Download(Files.Outdated);
 }
 catch (Exception e)
 {
