@@ -32,7 +32,7 @@ try
 }
 catch (Exception e)
 {
-    Terminal.Error("An error occurred while validating files.");
+    Terminal.Error("An error occurred while validating files");
     if (Debugger.IsAttached)
         Terminal.Debug(e.InnerException?.Message ?? e.Message);
 }
