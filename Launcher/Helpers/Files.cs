@@ -66,7 +66,7 @@ public static class Files
                 if (!string.IsNullOrEmpty(directoryPath))
                     Directory.CreateDirectory(directoryPath);
 
-                var downloadResponse = await Api.Launcher.GetDownload(file.Path);
+                var downloadResponse = await Api.Launcher.GetDownload(GameToken.Value!, file.Path);
 
                 await using var fileStream = File.Create(fullFilePath);
                 await downloadResponse.CopyToAsync(fileStream);

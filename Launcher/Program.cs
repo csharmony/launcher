@@ -23,9 +23,11 @@ else
     Terminal.Print($"Found CS:GO (4465480): {gamePath}");
 }
 
+await GameToken.Acquire();
+
 try
 {
-    var manifestResponse = await Api.Launcher.GetManifest();
+    var manifestResponse = await Api.Launcher.GetManifest(GameToken.Value!);
     await Files.Validate(manifestResponse.Files);
     await Files.Download(Files.Missing);
     await Files.Download(Files.Outdated);
