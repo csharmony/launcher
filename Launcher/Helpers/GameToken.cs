@@ -8,13 +8,33 @@ class HttpSession : NetCoreServer.HttpSession
 {
     public HttpSession(HttpServer server) : base(server) { }
 
-    protected override void OnReceivedRequest(HttpRequest request)
+    protected override async void OnReceivedRequest(HttpRequest request)
     {
-        if (request.Method != "GET" || !request.Url.StartsWith("/?game_token="))
+        if (request.Method != "GET")
             return;
 
-        GameToken.Value = request.Url.Replace("/?game_token=", "");
-        SendResponseAsync(Response.MakeGetResponse("Harmony Game Token acquired. You can now close this page."));
+        if (request.Url.StartsWith("/?game_token="))
+        {
+            GameToken.Value = request.Url.Replace("/?game_token=", "");
+
+            var response = new HttpResponse();
+            response.SetBegin(307);
+            response.SetHeader("Location", "http://localhost:47123/success");
+            response.SetBody();
+
+            SendResponseAsync(response);
+        }
+        else if (request.Url == "/success")
+        {
+            SendResponseAsync(Response.MakeGetResponse("Harmony Game Token acquired. You can now close this page."));
+
+            if (!string.IsNullOrWhiteSpace(GameToken.Value))
+            {
+                // wait until response is sent then stop the server
+                await Task.Delay(1000);
+                Server.Stop();
+            }
+        }
     }
 }
 
@@ -62,7 +82,7 @@ public static class GameToken
         {
             _server.Start();
 
-            while (string.IsNullOrWhiteSpace(Value))
+            while (string.IsNullOrWhiteSpace(Value) && _server.IsStarted)
                 await Task.Delay(1000);
         }
 
