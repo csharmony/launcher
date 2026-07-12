@@ -13,7 +13,7 @@ if (Debugger.IsAttached)
 }
 
 var gamePath = Steam.GetGamePath(4465480);
-if (string.IsNullOrEmpty(gamePath))
+if (string.IsNullOrWhiteSpace(gamePath))
 {
     Terminal.Warning("Couldn't locate CS:GO (4465480). Using current directory...");
 }

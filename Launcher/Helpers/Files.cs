@@ -63,7 +63,7 @@ public static class Files
                 var fullFilePath = Path.Combine(Steam.GamePath, file.Path);
                 var directoryPath = Path.GetDirectoryName(fullFilePath);
 
-                if (!string.IsNullOrEmpty(directoryPath))
+                if (!string.IsNullOrWhiteSpace(directoryPath))
                     Directory.CreateDirectory(directoryPath);
 
                 var downloadResponse = await Api.Launcher.GetDownload(GameToken.Value!, file.Path);

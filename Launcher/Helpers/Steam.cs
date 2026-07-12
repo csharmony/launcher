@@ -10,7 +10,7 @@ public static class Steam
     public static string? GetGamePath(int appId)
     {
         string? steamPath = GetSteamInstallPath();
-        if (string.IsNullOrEmpty(steamPath))
+        if (string.IsNullOrWhiteSpace(steamPath))
             return null;
 
         string vdfPath = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
@@ -26,7 +26,7 @@ public static class Steam
                 continue;
 
             string? folderName = ParseInstallDir(manifestPath);
-            if (string.IsNullOrEmpty(folderName))
+            if (string.IsNullOrWhiteSpace(folderName))
                 continue;
 
             string fullPath = Path.Combine(library, "steamapps", "common", folderName);
