@@ -40,13 +40,33 @@ public static class GameToken
 {
     public static string? Value;
     private static HttpServer _server = new HttpServer(IPAddress.Loopback, 47123);
+    private static string _comment = "# DO NOT SHARE THIS FILE TO ANYONE - This is your Harmony Game Token\nIt is used (alongside other things) for authentication with our GC\n# Tip: You can reset your Game Token on our website if you shared it on accident\n";
+    private static string _filePath = ".do-not-share";
 
     public static async Task Acquire()
     {
-        if (!_server.IsStarted)
+        if (File.Exists(_filePath))
+        {
+            var lines = await File.ReadAllLinesAsync(_filePath);
+            Value = lines.FirstOrDefault(line => !line.StartsWith('#'))?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(Value))
+            {
+                var verifyResponse = await Api.Launcher.GetVerify(Value);
+                if (!verifyResponse.IsSuccessStatusCode)
+                    Value = null;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(Value) && !_server.IsStarted)
+        {
             _server.Start();
 
-        while (string.IsNullOrEmpty(Value))
-            await Task.Delay(1000);
+            while (string.IsNullOrWhiteSpace(Value))
+                await Task.Delay(1000);
+        }
+
+        await File.WriteAllTextAsync(_filePath, _comment + Value);
+        File.SetAttributes(_filePath, File.GetAttributes(_filePath) | FileAttributes.Hidden);
     }
 }

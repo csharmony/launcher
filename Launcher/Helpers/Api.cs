@@ -20,6 +20,10 @@ public class ManifestResponse
 public interface ILauncher
 {
     [Headers("User-Agent: Launcher")]
+    [Get("/launcher/verify")]
+    Task<IApiResponse> GetVerify([AliasAs("game_token")] string gameToken);
+
+    [Headers("User-Agent: Launcher")]
     [Get("/launcher/manifest")]
     Task<ManifestResponse> GetManifest([AliasAs("game_token")] string gameToken);
 
