@@ -39,7 +39,16 @@ catch (Exception e)
         Terminal.Debug(e.InnerException?.Message ?? e.Message);
 }
 
-await Game.Launch("harmony_csgo.exe");
+try
+{
+    await Game.Launch("harmony_csgo.exe");
+}
+catch (Exception e)
+{
+    Terminal.Error("An error occurred while launching Harmony");
+    if (Debugger.IsAttached)
+        Terminal.Debug(e.InnerException?.Message ?? e.Message);
+}
 
 Terminal.Print("Closing launcher in 5 seconds...");
 await Task.Delay(5000);
