@@ -15,7 +15,7 @@ jobs:
   draft-release:
     permissions:
       contents: write
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,10 +30,9 @@ jobs:
       - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -o ./publish
 
       - name: Calculate MD5
-        shell: pwsh
+        shell: bash
         run: |
-          $hash = (Get-FileHash -Algorithm MD5 ./publish/Launcher.exe).Hash.ToLower()
-          echo "MD5_HASH=$hash" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "MD5_HASH=$(md5sum ./publish/Launcher.exe | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Upload to VirusTotal
         id: vt
@@ -47,31 +46,29 @@ jobs:
           summary: false
 
       - name: Compose release body
-        shell: pwsh
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = '${{ inputs.tag }}'
-          $notes = gh api /repos/${{ github.repository }}/releases/generate-notes -f tag_name=$tag --jq '.body'
+          echo '> [!IMPORTANT]' > body.md
+          echo '> .NET Runtime 10.0 is required to run the launcher. Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-10.0.9-windows-x64-installer).' >> body.md
+          echo '' >> body.md
 
-          Set-Content -Path body.md -Value '> [!IMPORTANT]'
-          Add-Content -Path body.md -Value '> .NET Runtime 10.0 is required to run the launcher. Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-10.0.9-windows-x64-installer).'
-          Add-Content -Path body.md -Value ''
+          echo '## Changelog' >> body.md
+          gh api /repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name='${{ inputs.tag }}' \
+            --jq '.body' >> body.md
+          echo '' >> body.md
 
-          Add-Content -Path body.md -Value '## Changelog'
-          Add-Content -Path body.md -Value $notes
-          Add-Content -Path body.md -Value ''
-
-          Add-Content -Path body.md -Value '## VirusTotal'
-          Add-Content -Path body.md -Value "**MD5 Hash:** ``${{ env.MD5_HASH }}``"
-          $vtResult = '${{ steps.vt.outputs.json }}'
-          if ($vtResult) {
-            $vtJson = $vtResult | ConvertFrom-Json
-            $vtLink = $vtJson[0].link
-            Add-Content -Path body.md -Value "[**Check the analysis here.**]($vtLink)"
-          } else {
-            Add-Content -Path body.md -Value "Failed to upload to VirusTotal."
-          }
+          echo '## VirusTotal' >> body.md
+          echo "**MD5 Hash:** \`${{ env.MD5_HASH }}\`" >> body.md
+          vtResult='${{ steps.vt.outputs.json }}'
+          if [ -n "$vtResult" ]; then
+            vtLink=$(echo "$vtResult" | jq -r '.[0].link')
+            echo "[**Check the analysis here.**]($vtLink)" >> body.md
+          else
+            echo "Failed to upload to VirusTotal." >> body.md
+          fi
 
       - uses: softprops/action-gh-release@v3
         with:
