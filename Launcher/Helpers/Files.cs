@@ -14,6 +14,9 @@ public static class Files
     public static readonly FileCategory Missing = new("missing");
     public static readonly FileCategory Outdated = new("outdated");
 
+    private static readonly List<string> IgnoreWindows = [".so", ".sh", ""];
+    private static readonly List<string> IgnoreLinux = [".dll", ".exe"];
+
     private static async Task<string> GetHashAsync(string filePath)
     {
         using var sha256 = SHA256.Create();
@@ -29,6 +32,12 @@ public static class Files
         foreach (var file in files)
         {
             var fullFilePath = Path.Combine(Steam.GamePath, file.Path);
+
+            var fileExtension = Path.GetExtension(file.Path);
+            var ignoreList = OperatingSystem.IsLinux() ? IgnoreLinux : IgnoreWindows;
+
+            if (ignoreList.Contains(fileExtension))
+                continue;
 
             if (File.Exists(fullFilePath))
             {
@@ -70,6 +79,13 @@ public static class Files
 
                 await using var fileStream = File.Create(fullFilePath);
                 await downloadResponse.CopyToAsync(fileStream);
+
+                if (OperatingSystem.IsLinux())
+                {
+                    UnixFileMode currentMode = File.GetUnixFileMode(fullFilePath);
+                    UnixFileMode newMode = currentMode | UnixFileMode.UserExecute | UnixFileMode.GroupExecute;
+                    File.SetUnixFileMode(fullFilePath, newMode);
+                }
 
                 Terminal.Success($"Successfully downloaded: {file.Path}");
             }

@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
@@ -6,6 +7,10 @@ namespace Launcher.Helpers;
 public static class Steam
 {
     public static string GamePath = "./";
+    public static string GameExecutable = OperatingSystem.IsLinux() ? "harmony_csgo.sh" : "harmony_csgo.exe";
+
+    [SupportedOSPlatform("linux")] public static string LinuxRuntimeExecutable = "run-in-scout-on-soldier";
+
 
     public static string? GetGamePath(int appId)
     {
@@ -44,6 +49,14 @@ public static class Steam
             using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Valve\Steam") ??
                             Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam");
             return key?.GetValue("InstallPath")?.ToString();
+        }
+        else
+        {
+            string homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string steamPath = Path.Combine(homePath, ".local", "share", "Steam");
+
+            if (Directory.Exists(steamPath))
+                return steamPath;
         }
 
         return null;

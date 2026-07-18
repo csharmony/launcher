@@ -4,20 +4,34 @@ namespace Launcher.Helpers;
 
 public static class Game
 {
-    public static async Task Launch(string fileName)
+    private static string GetArguments(string arguments)
     {
-        var filePath = Path.Combine(Steam.GamePath, fileName);
-        if (!File.Exists(filePath))
+        if (OperatingSystem.IsLinux())
+            return $"-- \"{Steam.GameExecutable}\" -steam --token={GameToken.Value} {arguments}";
+
+        return $"--token={GameToken.Value} {arguments}";
+    }
+
+    public static async Task Launch()
+    {
+        if (!File.Exists(Steam.GameExecutable))
         {
-            Terminal.Warning($"File doesn't exist: {fileName}");
+            Terminal.Warning($"File doesn't exist: {Steam.GameExecutable}");
+            return;
+        }
+
+        if (OperatingSystem.IsLinux() && !File.Exists(Steam.LinuxRuntimeExecutable))
+        {
+            Terminal.Warning($"File doesn't exist: {Steam.LinuxRuntimeExecutable}");
             return;
         }
 
         var arguments = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
         var startInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(Steam.GamePath, fileName),
-            Arguments = $"--token={GameToken.Value} " + arguments.Clone()
+            FileName = OperatingSystem.IsLinux() ? Steam.LinuxRuntimeExecutable : Steam.GameExecutable,
+            Arguments = GetArguments(arguments),
+            RedirectStandardOutput = true // disable csgo output in linux terminal
         };
 
         using Process process = new() { StartInfo = startInfo };

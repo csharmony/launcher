@@ -23,6 +23,21 @@ else
     Terminal.Print($"Found CS:GO (4465480): {gamePath}");
 }
 
+Steam.GameExecutable = Path.Combine(Steam.GamePath, Steam.GameExecutable);
+
+if (OperatingSystem.IsLinux())
+{
+    var linuxRuntimePath = Steam.GetGamePath(1070560);
+    if (string.IsNullOrWhiteSpace(linuxRuntimePath))
+    {
+        Terminal.Error("Couldn't locate Steam Linux Runtime 1.0 (1070560). Make sure you have it installed.");
+        await Task.Delay(10000);
+        Environment.Exit(1);
+    }
+
+    Steam.LinuxRuntimeExecutable = Path.Combine(linuxRuntimePath, Steam.LinuxRuntimeExecutable);
+}
+
 await GameToken.Acquire();
 
 try
@@ -41,7 +56,7 @@ catch (Exception e)
 
 try
 {
-    await Game.Launch("harmony_csgo.exe");
+    await Game.Launch();
 }
 catch (Exception e)
 {
