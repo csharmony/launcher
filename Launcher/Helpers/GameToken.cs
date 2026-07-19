@@ -75,7 +75,7 @@ public static class GameToken
     public static string? Value;
     private static HttpServer _server = new HttpServer(IPAddress.Loopback, 47123);
     private static string _comment = "# DO NOT SHARE THIS FILE TO ANYONE - This is your Harmony Game Token\n# It is used (alongside other things) for authentication with our GC\n# Tip: You can reset your Game Token on our website if you shared it on accident\n";
-    private static string _filePath = ".do-not-share";
+    private static string _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".do-not-share");
 
     public static async Task Acquire()
     {
@@ -99,6 +99,9 @@ public static class GameToken
             while (string.IsNullOrWhiteSpace(Value) && _server.IsStarted)
                 await Task.Delay(1000);
         }
+
+        if (File.Exists(_filePath))
+            File.SetAttributes(_filePath, File.GetAttributes(_filePath) & ~FileAttributes.Hidden);
 
         await File.WriteAllTextAsync(_filePath, _comment + Value);
         File.SetAttributes(_filePath, File.GetAttributes(_filePath) | FileAttributes.Hidden);
