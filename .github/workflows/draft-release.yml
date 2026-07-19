@@ -26,13 +26,17 @@ jobs:
           dotnet-version: '10.0.x'
 
       - run: dotnet restore Launcher.slnx
-
-      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -o ./publish
+      
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -o ./publish-windows
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r linux-x64 --self-contained false -p:AssemblyName=Launcher_linux64 -o ./publish-linux
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained true -p:AssemblyName=Launcher-sc -o ./publish-windows-sc
+      - run: dotnet publish Launcher/Launcher.csproj -c Release -r linux-x64 --self-contained true -p:AssemblyName=Launcher-sc_linux64 -o ./publish-linux-sc
 
       - name: Calculate MD5
         shell: bash
         run: |
-          echo "MD5_HASH=$(md5sum ./publish/Launcher.exe | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "MD5_HASH_WINDOWS=$(md5sum ./publish-windows/Launcher.exe | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "MD5_HASH_LINUX=$(md5sum ./publish-linux/Launcher_linux64 | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Upload to VirusTotal
         id: vt
@@ -40,7 +44,9 @@ jobs:
         continue-on-error: true
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
-          file_globs: ./publish/Launcher.exe
+          file_globs: |
+            ./publish-windows/Launcher.exe
+            ./publish-linux/Launcher_linux64
           update_release: false
           sha256: true
           summary: false
@@ -51,7 +57,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo '> [!IMPORTANT]' > body.md
-          echo '> .NET Runtime 10.0 is required to run the launcher. Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-10.0.9-windows-x64-installer).' >> body.md
+          echo '> .NET Runtime 10.0 is required to run the normal variant of the launcher (`Launcher.exe`, `Launcher_linux64`). Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/10.0#runtime-10.0.10).' >> body.md
+          echo '> If you do not want to download .NET Runtime 10.0, you can use the **self-contained** variant instead (`Launcher-sc.exe`, `Launcher-sc_linux64`). It has .NET Runtime 10.0 inside the executable, making the size around 80MB.' >> body.md
           echo '' >> body.md
 
           echo '## Changelog' >> body.md
@@ -61,10 +68,21 @@ jobs:
           echo '' >> body.md
 
           echo '## VirusTotal' >> body.md
-          echo "**MD5 Hash:** \`${{ env.MD5_HASH }}\`" >> body.md
           vtResult='${{ steps.vt.outputs.json }}'
+          
+          echo '### Windows' >> body.md
+          echo "**MD5 Hash:** \`${{ env.MD5_HASH_WINDOWS }}\`" >> body.md
           if [ -n "$vtResult" ]; then
-            vtLink=$(echo "$vtResult" | jq -r '.[0].link')
+            vtLink=$(echo "$vtResult" | jq -r '.[] | select(.name | endswith("Launcher.exe")) | .link')
+            echo "[**Check the analysis here.**]($vtLink)" >> body.md
+          else
+            echo "Failed to upload to VirusTotal." >> body.md
+          fi
+
+          echo '### Linux' >> body.md
+          echo "**MD5 Hash:** \`${{ env.MD5_HASH_LINUX }}\`" >> body.md
+          if [ -n "$vtResult" ]; then
+            vtLink=$(echo "$vtResult" | jq -r '.[] | select(.name | endswith("Launcher_linux64")) | .link')
             echo "[**Check the analysis here.**]($vtLink)" >> body.md
           else
             echo "Failed to upload to VirusTotal." >> body.md
@@ -77,4 +95,8 @@ jobs:
           draft: true
           body_path: body.md
           prerelease: ${{ inputs.prerelease }}
-          files: ./publish/Launcher.exe
+          files: |
+            ./publish-windows/Launcher.exe
+            ./publish-windows-sc/Launcher-sc.exe
+            ./publish-linux/Launcher_linux64
+            ./publish-linux-sc/Launcher-sc_linux64
