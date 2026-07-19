@@ -48,11 +48,25 @@ class HttpServer : NetCoreServer.HttpServer
     {
         base.OnStarted();
 
-        Process.Start(new ProcessStartInfo
+        // disable browser output in linux terminal
+        if (OperatingSystem.IsLinux())
         {
-            FileName = Api.Url + "/launcher/auth",
-            UseShellExecute = true
-        });
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "xdg-open",
+                Arguments = Api.Url + "/launcher/auth",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            });
+        }
+        else
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Api.Url + "/launcher/auth",
+                UseShellExecute = true
+            });
+        }
     }
 }
 

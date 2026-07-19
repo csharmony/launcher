@@ -31,7 +31,9 @@ public static class Game
         {
             FileName = OperatingSystem.IsLinux() ? Steam.LinuxRuntimeExecutable : Steam.GameExecutable,
             Arguments = GetArguments(arguments),
-            RedirectStandardOutput = true // disable csgo output in linux terminal
+            // disable csgo output in linux terminal
+            RedirectStandardOutput = OperatingSystem.IsLinux(),
+            RedirectStandardError = OperatingSystem.IsLinux()
         };
 
         using Process process = new() { StartInfo = startInfo };
