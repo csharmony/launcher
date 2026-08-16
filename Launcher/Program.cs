@@ -40,18 +40,27 @@ if (OperatingSystem.IsLinux())
 
 await GameToken.Acquire();
 
-try
+var skipValidation = Environment.GetCommandLineArgs().Contains("--skip-validation");
+if (skipValidation)
 {
-    var manifestResponse = await Api.Launcher.GetManifest(GameToken.Value!);
-    await Files.Validate(manifestResponse.Files);
-    await Files.Download(Files.Missing);
-    await Files.Download(Files.Outdated);
+    Terminal.Warning("Skipping file validation");
 }
-catch (Exception e)
+else
 {
-    Terminal.Error("An error occurred while validating files");
-    if (Debugger.IsAttached)
-        Terminal.Debug(e.InnerException?.Message ?? e.Message);
+    try
+    {
+        var manifestResponse = await Api.Launcher.GetManifest(GameToken.Value!);
+        await Files.Validate(manifestResponse.Files);
+        await Files.Download(Files.Missing);
+        await Files.Download(Files.Outdated);
+    }
+    catch (Exception e)
+    {
+        Terminal.Error("An error occurred while validating files");
+
+        if (Debugger.IsAttached)
+            Terminal.Debug(e.InnerException?.Message ?? e.Message);
+    }
 }
 
 try
