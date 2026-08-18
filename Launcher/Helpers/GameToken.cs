@@ -4,10 +4,8 @@ using NetCoreServer;
 
 namespace Launcher.Helpers;
 
-class HttpSession : NetCoreServer.HttpSession
+class HttpSession(HttpServer server) : NetCoreServer.HttpSession(server)
 {
-    public HttpSession(HttpServer server) : base(server) { }
-
     protected override async void OnReceivedRequest(HttpRequest request)
     {
         if (request.Method != "GET")
@@ -26,7 +24,8 @@ class HttpSession : NetCoreServer.HttpSession
         }
         else if (request.Url == "/success")
         {
-            SendResponseAsync(Response.MakeGetResponse("Harmony Game Token acquired. You can now close this page."));
+            SendResponseAsync(
+                Response.MakeGetResponse("Harmony Game Token acquired. You can now close this page."));
 
             if (!string.IsNullOrWhiteSpace(GameToken.Value))
             {
@@ -38,11 +37,12 @@ class HttpSession : NetCoreServer.HttpSession
     }
 }
 
-class HttpServer : NetCoreServer.HttpServer
+class HttpServer(IPAddress address, int port) : NetCoreServer.HttpServer(address, port)
 {
-    public HttpServer(IPAddress address, int port) : base(address, port) { }
-
-    protected override TcpSession CreateSession() { return new HttpSession(this); }
+    protected override TcpSession CreateSession()
+    {
+        return new HttpSession(this);
+    }
 
     protected override void OnStarted()
     {
@@ -73,37 +73,51 @@ class HttpServer : NetCoreServer.HttpServer
 public static class GameToken
 {
     public static string? Value;
-    private static HttpServer _server = new HttpServer(IPAddress.Loopback, 47123);
-    private static string _comment = "# DO NOT SHARE THIS FILE TO ANYONE - This is your Harmony Game Token\n# It is used (alongside other things) for authentication with our GC\n# Tip: You can reset your Game Token on our website if you shared it on accident\n";
-    private static string _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".do-not-share");
+    private static readonly HttpServer Server = new(IPAddress.Loopback, 47123);
+
+    private static readonly string Comment =
+        "# DO NOT SHARE THIS FILE TO ANYONE - This is your Harmony Game Token\n# It is used (alongside other things) for authentication with our GC\n# Tip: You can reset your Game Token on our website if you shared it on accident\n";
+
+    private static readonly string FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".do-not-share");
 
     public static async Task Acquire()
     {
-        if (File.Exists(_filePath))
+        if (File.Exists(FilePath))
         {
-            var lines = await File.ReadAllLinesAsync(_filePath);
+            var lines = await File.ReadAllLinesAsync(FilePath);
             Value = lines.FirstOrDefault(line => !line.StartsWith('#'))?.Trim();
 
             if (!string.IsNullOrWhiteSpace(Value))
             {
-                var verifyResponse = await Api.Launcher.GetVerify(Value);
-                if (!verifyResponse.IsSuccessStatusCode)
-                    Value = null;
+                try
+                {
+                    var verifyResponse = await Api.Launcher.GetVerify(Value);
+                    if (!verifyResponse.IsSuccessStatusCode)
+                        Value = null;
+                }
+                catch (Exception e)
+                {
+                    Terminal.Error(
+                        "An error occurred while verifying your Game Token. Are you connected to the Internet?");
+
+                    if (Debugger.IsAttached)
+                        Terminal.Debug(e.InnerException?.Message ?? e.Message);
+                }
             }
         }
 
-        if (string.IsNullOrWhiteSpace(Value) && !_server.IsStarted)
+        if (string.IsNullOrWhiteSpace(Value) && !Server.IsStarted)
         {
-            _server.Start();
+            Server.Start();
 
-            while (string.IsNullOrWhiteSpace(Value) && _server.IsStarted)
+            while (string.IsNullOrWhiteSpace(Value) && Server.IsStarted)
                 await Task.Delay(1000);
         }
 
-        if (File.Exists(_filePath))
-            File.SetAttributes(_filePath, File.GetAttributes(_filePath) & ~FileAttributes.Hidden);
+        if (File.Exists(FilePath))
+            File.SetAttributes(FilePath, File.GetAttributes(FilePath) & ~FileAttributes.Hidden);
 
-        await File.WriteAllTextAsync(_filePath, _comment + Value);
-        File.SetAttributes(_filePath, File.GetAttributes(_filePath) | FileAttributes.Hidden);
+        await File.WriteAllTextAsync(FilePath, Comment + Value);
+        File.SetAttributes(FilePath, File.GetAttributes(FilePath) | FileAttributes.Hidden);
     }
 }

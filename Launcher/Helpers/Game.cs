@@ -31,7 +31,7 @@ public static class Game
         process.StartInfo = startInfo;
         process.Start();
 
-        Terminal.Success("Launched Harmony");
+        Terminal.Success("Launched Harmony!");
         if (!string.IsNullOrWhiteSpace(Arguments.Game))
             Terminal.Print($"Arguments: {Arguments.Game}");
 
