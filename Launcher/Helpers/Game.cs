@@ -4,14 +4,6 @@ namespace Launcher.Helpers;
 
 public static class Game
 {
-    private static string GetArguments(string arguments)
-    {
-        if (OperatingSystem.IsLinux())
-            return $"-- \"{Steam.GameExecutable}\" -steam --token={GameToken.Value} {arguments}";
-
-        return $"--token={GameToken.Value} {arguments}";
-    }
-
     public static async Task Launch()
     {
         if (!File.Exists(Steam.GameExecutable))
@@ -26,11 +18,10 @@ public static class Game
             return;
         }
 
-        var arguments = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
         var startInfo = new ProcessStartInfo
         {
             FileName = OperatingSystem.IsLinux() ? Steam.LinuxRuntimeExecutable : Steam.GameExecutable,
-            Arguments = GetArguments(arguments),
+            Arguments = Arguments.All,
             // disable csgo output in linux terminal
             RedirectStandardOutput = OperatingSystem.IsLinux(),
             RedirectStandardError = OperatingSystem.IsLinux()
@@ -41,8 +32,8 @@ public static class Game
         process.Start();
 
         Terminal.Success("Launched Harmony");
-        if (!string.IsNullOrWhiteSpace(arguments))
-            Terminal.Print($"Arguments: {arguments}");
+        if (!string.IsNullOrWhiteSpace(Arguments.Game))
+            Terminal.Print($"Arguments: {Arguments.Game}");
 
         await process.WaitForExitAsync();
         if (Debugger.IsAttached)

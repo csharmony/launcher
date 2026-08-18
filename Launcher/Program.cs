@@ -40,10 +40,11 @@ if (OperatingSystem.IsLinux())
 
 await GameToken.Acquire();
 
-var skipValidation = Environment.GetCommandLineArgs().Contains("--skip-validation");
-if (skipValidation)
+Arguments.Initialize();
+
+if (Arguments.SkipValidation)
 {
-    Terminal.Warning("Skipping file validation");
+    Terminal.Warning("Skipping file validation. Your game might not work properly!");
 }
 else
 {
