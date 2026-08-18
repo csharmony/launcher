@@ -101,9 +101,12 @@ public static class Files
 
                         downloader.DownloadStarted += (_, _) => { task.StartTask(); };
                         downloader.DownloadProgressChanged += (_, e) => { task.Value = e.ProgressPercentage; };
-                        downloader.DownloadFileCompleted += (_, _) =>
+                        downloader.DownloadFileCompleted += (_, e) =>
                         {
-                            task.Value = 100;
+                            if (e.Cancelled || e.Error != null)
+                                Terminal.Error($"Failed to download: {file.Path}");
+                            else
+                                task.Value = 100;
                             task.StopTask();
                         };
 
