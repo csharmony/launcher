@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
+using Downloader;
+using Spectre.Console;
 
 namespace Launcher.Helpers;
 
@@ -16,6 +18,16 @@ public static class Files
 
     private static readonly List<string> IgnoreWindows = [".so", ".sh", ""];
     private static readonly List<string> IgnoreLinux = [".dll", ".exe"];
+
+    private static readonly DownloadConfiguration DownloaderConfiguration = new()
+    {
+        ChunkCount = 8,
+        ParallelDownload = true,
+        ParallelCount = 4,
+        MaxTryAgainOnFailure = 5,
+        EnableAutoResumeDownload = true,
+        CheckDiskSizeBeforeDownload = true,
+    };
 
     private static async Task<string> GetHashAsync(string filePath)
     {
@@ -75,19 +87,44 @@ public static class Files
                 if (!string.IsNullOrWhiteSpace(directoryPath))
                     Directory.CreateDirectory(directoryPath);
 
-                var downloadResponse = await Api.Launcher.GetDownload(GameToken.Value!, file.Path);
+                // TODO: partially move this to Terminal.cs
+                await AnsiConsole.Progress()
+                    .StartAsync(async ctx =>
+                    {
+                        var task = ctx.AddTask(file.Path, new ProgressTaskSettings
+                        {
+                            MaxValue = 100,
+                            AutoStart = false
+                        });
 
-                await using var fileStream = File.Create(fullFilePath);
-                await downloadResponse.CopyToAsync(fileStream);
+                        var downloader = new DownloadService(DownloaderConfiguration);
 
-                if (OperatingSystem.IsLinux())
+                        downloader.DownloadStarted += (_, _) => { task.StartTask(); };
+                        downloader.DownloadProgressChanged += (_, e) => { task.Value = e.ProgressPercentage; };
+                        downloader.DownloadFileCompleted += (_, _) =>
+                        {
+                            task.Value = 100;
+                            task.StopTask();
+                        };
+
+                        await downloader.DownloadFileTaskAsync(
+                            Api.Url + $"/launcher/download?game_token={GameToken.Value}&file_path={file.Path}",
+                            fullFilePath);
+                    });
+
+                if (File.Exists(fullFilePath))
                 {
+                    var hash = await GetHashAsync(fullFilePath);
+                    if (hash != file.Hash)
+                        Terminal.Error($"Failed to download: {file.Path}");
+
+                    if (!OperatingSystem.IsLinux())
+                        continue;
+
                     UnixFileMode currentMode = File.GetUnixFileMode(fullFilePath);
                     UnixFileMode newMode = currentMode | UnixFileMode.UserExecute | UnixFileMode.GroupExecute;
                     File.SetUnixFileMode(fullFilePath, newMode);
                 }
-
-                Terminal.Success($"Successfully downloaded: {file.Path}");
             }
             catch (Exception e)
             {

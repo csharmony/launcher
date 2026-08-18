@@ -36,10 +36,11 @@ public static class Game
             RedirectStandardError = OperatingSystem.IsLinux()
         };
 
-        using Process process = new() { StartInfo = startInfo };
+        using Process process = new();
+        process.StartInfo = startInfo;
         process.Start();
 
-        Terminal.Success($"Launched Harmony");
+        Terminal.Success("Launched Harmony");
         if (!string.IsNullOrWhiteSpace(arguments))
             Terminal.Print($"Arguments: {arguments}");
 

@@ -26,10 +26,6 @@ public interface ILauncher
     [Headers("User-Agent: Launcher")]
     [Get("/launcher/manifest")]
     Task<ManifestResponse> GetManifest([AliasAs("game_token")] string gameToken);
-
-    [Headers("User-Agent: Launcher")]
-    [Get("/launcher/download")]
-    Task<Stream> GetDownload([AliasAs("game_token")] string gameToken, [AliasAs("file_path")] string filePath);
 }
 
 public static class Api
