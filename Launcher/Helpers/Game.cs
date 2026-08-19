@@ -22,6 +22,7 @@ public static class Game
         {
             FileName = OperatingSystem.IsLinux() ? Steam.LinuxRuntimeExecutable : Steam.GameExecutable,
             Arguments = Arguments.All,
+            WorkingDirectory = Steam.GamePath,
             // disable csgo output in linux terminal
             RedirectStandardOutput = OperatingSystem.IsLinux(),
             RedirectStandardError = OperatingSystem.IsLinux()
