@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using Downloader;
 using Spectre.Console;
@@ -132,7 +131,7 @@ public static class Files
             catch (Exception e)
             {
                 Terminal.Error($"An error occurred while downloading: {file.Path}");
-                if (Debugger.IsAttached)
+                if (Debug.IsEnabled)
                     Terminal.Debug(e.InnerException?.Message ?? e.Message);
             }
         }

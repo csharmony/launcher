@@ -37,7 +37,7 @@ public static class Game
             Terminal.Print($"Arguments: {Arguments.Game}");
 
         await process.WaitForExitAsync();
-        if (Debugger.IsAttached)
+        if (Debug.IsEnabled)
             Terminal.Debug($"Game closed with exit code: {process.ExitCode}");
     }
 }

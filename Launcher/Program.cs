@@ -1,16 +1,8 @@
-﻿using System.Diagnostics;
-using Launcher.Helpers;
+﻿using Launcher.Helpers;
 
 Terminal.PrintWelcome();
 
-if (Debugger.IsAttached)
-{
-    Terminal.Print("This is an info message");
-    Terminal.Success("This is a success message");
-    Terminal.Warning("This is a warning message");
-    Terminal.Error("This is an error message");
-    Terminal.Debug("This is a debug message");
-}
+Arguments.InitializeLauncher();
 
 var gamePath = Steam.GetGamePath(4465480);
 if (string.IsNullOrWhiteSpace(gamePath))
@@ -40,12 +32,10 @@ if (OperatingSystem.IsLinux())
 
 await GameToken.Acquire();
 
-Arguments.Initialize();
+Arguments.InitializeGame();
 
 if (Arguments.SkipValidation)
-{
     Terminal.Warning("Skipping file validation. Your game might not work properly!");
-}
 else
 {
     try
@@ -59,7 +49,7 @@ else
     {
         Terminal.Error("An error occurred while validating files. Are you connected to the Internet?");
 
-        if (Debugger.IsAttached)
+        if (Debug.IsEnabled)
             Terminal.Debug(e.InnerException?.Message ?? e.Message);
     }
 }
@@ -71,7 +61,7 @@ try
 catch (Exception e)
 {
     Terminal.Error("An error occurred while launching Harmony.");
-    if (Debugger.IsAttached)
+    if (Debug.IsEnabled)
         Terminal.Debug(e.InnerException?.Message ?? e.Message);
 }
 
