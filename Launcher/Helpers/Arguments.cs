@@ -6,12 +6,12 @@ public static class Arguments
     public static bool SkipValidation;
     public static bool DebugEnabled;
 
-    public static string All = "";
-    public static string Game = "";
+    public static List<string> All = [];
+    public static List<string> Game = [];
 
-    public static void InitializeLauncher()
+    public static void Initialize()
     {
-        var arguments = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
+        var arguments = Environment.GetCommandLineArgs().Skip(1).ToList();
 
         ReadArgument(ref arguments, "--skip-validation", ref SkipValidation);
         ReadArgument(ref arguments, "--debug", ref DebugEnabled);
@@ -21,18 +21,19 @@ public static class Arguments
 
     public static void InitializeGame()
     {
-        All = $"--token={GameToken.Value} {Game}";
+        All = [$"--token={GameToken.Value}", "-language harmony", .. Game];
         if (OperatingSystem.IsLinux()) // steam linux runtime thing
-            All = $"-- \"{Steam.GameExecutable}\" -steam " + All;
+            All = ["--", $"\"{Steam.GameExecutable}\"", "-steam", .. All];
     }
 
     // TODO: make it read other variable types such as int, string, etc.
-    private static void ReadArgument(ref string arguments, string value, ref bool argument)
+    private static void ReadArgument(ref List<string> arguments, string value, ref bool argument)
     {
-        if (!arguments.Contains(value))
+        int index = arguments.IndexOf(value);
+        if (index == -1)
             return;
 
         argument = true;
-        arguments = arguments.Replace(value, "");
+        arguments.RemoveAt(index);
     }
 }

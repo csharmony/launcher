@@ -2,7 +2,7 @@
 
 Terminal.PrintWelcome();
 
-Arguments.InitializeLauncher();
+Arguments.Initialize();
 
 var gamePath = Steam.GetGamePath(4465480);
 if (string.IsNullOrWhiteSpace(gamePath))

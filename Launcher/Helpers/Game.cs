@@ -21,11 +21,11 @@ public static class Game
         var startInfo = new ProcessStartInfo
         {
             FileName = OperatingSystem.IsLinux() ? Steam.LinuxRuntimeExecutable : Steam.GameExecutable,
-            Arguments = Arguments.All,
+            Arguments = string.Join(" ", Arguments.All),
             WorkingDirectory = Steam.GamePath,
             // disable csgo output in linux terminal
-            RedirectStandardOutput = OperatingSystem.IsLinux(),
-            RedirectStandardError = OperatingSystem.IsLinux()
+            RedirectStandardOutput = OperatingSystem.IsLinux() && !Debug.IsEnabled,
+            RedirectStandardError = OperatingSystem.IsLinux() && !Debug.IsEnabled
         };
 
         using Process process = new();
@@ -33,8 +33,8 @@ public static class Game
         process.Start();
 
         Terminal.Success("Launched Harmony!");
-        if (!string.IsNullOrWhiteSpace(Arguments.Game))
-            Terminal.Print($"Arguments: {Arguments.Game}");
+        if (Arguments.Game.Count > 0)
+            Terminal.Print($"Arguments: {string.Join(" ", Arguments.Game)}");
 
         await process.WaitForExitAsync();
         if (Debug.IsEnabled)
