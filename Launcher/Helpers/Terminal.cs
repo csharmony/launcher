@@ -20,30 +20,30 @@ public static class Terminal
 
     public static void Print(object message)
     {
-        AnsiConsole.MarkupLine($"[white on {InfoColor}] ? [/] {Markup.Escape(message.ToString())}");
+        AnsiConsole.MarkupLine($"[white on {InfoColor}] ? [/] {Markup.Escape(message.ToString()!)}");
     }
 
     public static void Success(object message)
     {
         AnsiConsole.MarkupLine(
-            $"[white on {SuccessColor}] + [/] [{SuccessColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {SuccessColor}] + [/] [{SuccessColor}]{Markup.Escape(message.ToString()!)}[/]");
     }
 
     public static void Warning(object message)
     {
         AnsiConsole.MarkupLine(
-            $"[white on {WarningColor}] ! [/] [{WarningColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {WarningColor}] ! [/] [{WarningColor}]{Markup.Escape(message.ToString()!)}[/]");
     }
 
     public static void Error(object message)
     {
         AnsiConsole.MarkupLine(
-            $"[white on {ErrorColor}] X [/] [{ErrorColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {ErrorColor}] X [/] [{ErrorColor}]{Markup.Escape(message.ToString()!)}[/]");
     }
 
     public static void Debug(object message)
     {
         AnsiConsole.MarkupLine(
-            $"[white on {DebugColor}] ? [/] [{DebugColor}]{Markup.Escape(message.ToString())}[/]");
+            $"[white on {DebugColor}] ? [/] [{DebugColor}]{Markup.Escape(message.ToString()!)}[/]");
     }
 }
