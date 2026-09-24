@@ -8,4 +8,8 @@ mkShell {
   buildInputs = [
     dotnet-sdk_10
   ];
+
+  shellHook = ''
+    unset TEMP TMP TEMPDIR TMPDIR
+  '';
 }
