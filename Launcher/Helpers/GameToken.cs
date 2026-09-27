@@ -101,7 +101,7 @@ public static class GameToken
                         "An error occurred while verifying your Game Token. Are you connected to the Internet?");
 
                     if (Debug.IsEnabled)
-                        Terminal.Debug(e.InnerException?.Message ?? e.Message);
+                        Terminal.Debug(e);
                 }
             }
         }

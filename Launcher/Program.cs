@@ -50,7 +50,7 @@ else
         Terminal.Error("An error occurred while validating files. Are you connected to the Internet?");
 
         if (Debug.IsEnabled)
-            Terminal.Debug(e.InnerException?.Message ?? e.Message);
+            Terminal.Debug(e);
     }
 }
 
@@ -62,7 +62,7 @@ catch (Exception e)
 {
     Terminal.Error("An error occurred while launching Harmony.");
     if (Debug.IsEnabled)
-        Terminal.Debug(e.InnerException?.Message ?? e.Message);
+        Terminal.Debug(e);
 }
 
 Terminal.Print("Closing launcher in 5 seconds...");

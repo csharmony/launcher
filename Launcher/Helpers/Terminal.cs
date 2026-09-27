@@ -46,4 +46,10 @@ public static class Terminal
         AnsiConsole.MarkupLine(
             $"[white on {DebugColor}] ? [/] [{DebugColor}]{Markup.Escape(message.ToString()!)}[/]");
     }
+
+    public static void Debug(Exception exception)
+    {
+        AnsiConsole.MarkupLine(
+            $"[{DebugColor}]{Markup.Escape(exception.StackTrace ?? exception.Message)}[/]");
+    }
 }

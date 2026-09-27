@@ -132,7 +132,7 @@ public static class Files
             {
                 Terminal.Error($"An error occurred while downloading: {file.Path}");
                 if (Debug.IsEnabled)
-                    Terminal.Debug(e.InnerException?.Message ?? e.Message);
+                    Terminal.Debug(e);
             }
         }
     }
