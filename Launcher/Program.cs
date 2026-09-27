@@ -32,8 +32,6 @@ if (OperatingSystem.IsLinux())
 
 await GameToken.Acquire();
 
-Arguments.InitializeGame();
-
 if (Arguments.SkipValidation)
     Terminal.Warning("Skipping file validation. Your game might not work properly!");
 else

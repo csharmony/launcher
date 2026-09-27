@@ -6,7 +6,6 @@ public static class Arguments
     public static bool SkipValidation;
     public static bool DebugEnabled;
 
-    public static List<string> All = [];
     public static List<string> Game = [];
 
     public static void Initialize()
@@ -19,14 +18,17 @@ public static class Arguments
         Game = arguments;
     }
 
-    public static void InitializeGame()
+    public new static string ToString()
     {
-        All = [$"--token={GameToken.Value}", "-language harmony", .. Game];
+        List<string> arguments = [$"--token={GameToken.Value}", "-language harmony", .. Game];
         if (OperatingSystem.IsLinux()) // steam linux runtime thing
-            All = ["--", $"\"{Steam.GameExecutable}\"", "-steam", .. All];
+            arguments = ["--", $"\"{Steam.GameExecutable}\"", "-steam", .. arguments];
+
+        return string.Join(" ", arguments);
     }
 
     // TODO: make it read other variable types such as int, string, etc.
+    // ?: i guess overloads is the way, only bool arguments are implemented so no need to add overloads for now
     private static void ReadArgument(ref List<string> arguments, string value, ref bool argument)
     {
         int index = arguments.IndexOf(value);
