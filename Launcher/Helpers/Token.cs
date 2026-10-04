@@ -117,6 +117,10 @@ public static class Token
         if (File.Exists(FilePath))
             File.SetAttributes(FilePath, File.GetAttributes(FilePath) & ~FileAttributes.Hidden);
 
+        var tokenDirectory = Path.GetDirectoryName(FilePath)!;
+        if (!Directory.Exists(tokenDirectory))
+            Directory.CreateDirectory(tokenDirectory);
+
         await File.WriteAllTextAsync(FilePath, Comment + Value);
         File.SetAttributes(FilePath, File.GetAttributes(FilePath) | FileAttributes.Hidden);
     }
