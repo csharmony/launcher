@@ -19,7 +19,7 @@ public static class Arguments
 
         List = ["-language harmony", .. arguments];
         if (OperatingSystem.IsLinux()) // steam linux runtime thing
-            List = ["--", $"\"{Steam.GameExecutable}\"", "-steam", .. List];
+            List = ["--", $"\"./{Steam.GameExecutable}\"", "-steam", .. List];
     }
 
     public new static string ToString() => string.Join(" ", List);
