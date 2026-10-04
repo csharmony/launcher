@@ -78,13 +78,15 @@ public static class Token
     private static readonly string Comment =
         "# DO NOT SHARE THIS FILE TO ANYONE - This is your authentication token.\n# It is used (alongside other things) for authentication with our GC.\n# Tip: You can reset your token on our website if you shared it on accident (for dedicated servers - create a new one).\n";
 
-    private static readonly string FilePath = Path.Combine(Steam.GamePath, "harmony/.do-not-share");
+    private static string _filePath = ".do-not-share";
 
     public static async Task Acquire()
     {
-        if (File.Exists(FilePath))
+        _filePath = Path.Combine(Steam.GamePath, "harmony/.do-not-share");
+
+        if (File.Exists(_filePath))
         {
-            var lines = await File.ReadAllLinesAsync(FilePath);
+            var lines = await File.ReadAllLinesAsync(_filePath);
             Value = lines.FirstOrDefault(line => !line.StartsWith('#'))?.Trim();
 
             if (!string.IsNullOrWhiteSpace(Value))
@@ -114,14 +116,14 @@ public static class Token
                 await Task.Delay(1000);
         }
 
-        if (File.Exists(FilePath))
-            File.SetAttributes(FilePath, File.GetAttributes(FilePath) & ~FileAttributes.Hidden);
+        if (File.Exists(_filePath))
+            File.SetAttributes(_filePath, File.GetAttributes(_filePath) & ~FileAttributes.Hidden);
 
-        var tokenDirectory = Path.GetDirectoryName(FilePath)!;
+        var tokenDirectory = Path.GetDirectoryName(_filePath)!;
         if (!Directory.Exists(tokenDirectory))
             Directory.CreateDirectory(tokenDirectory);
 
-        await File.WriteAllTextAsync(FilePath, Comment + Value);
-        File.SetAttributes(FilePath, File.GetAttributes(FilePath) | FileAttributes.Hidden);
+        await File.WriteAllTextAsync(_filePath, Comment + Value);
+        File.SetAttributes(_filePath, File.GetAttributes(_filePath) | FileAttributes.Hidden);
     }
 }
