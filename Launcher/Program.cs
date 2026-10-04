@@ -9,7 +9,9 @@ await Update.CheckAsync();
 var gamePath = Steam.GetGamePath(4465480);
 if (string.IsNullOrWhiteSpace(gamePath))
 {
-    Terminal.Warning("Couldn't locate CS:GO (4465480). Using current directory...");
+    Terminal.Error("Couldn't locate CS:GO (4465480). Make sure you have it installed.");
+    await Task.Delay(10000);
+    Environment.Exit(1);
 }
 else
 {
