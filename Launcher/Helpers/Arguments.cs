@@ -5,6 +5,7 @@ public static class Arguments
     // launcher arguments
     public static bool SkipValidation;
     public static bool DebugEnabled;
+    public static bool SkipUpdates;
 
     public static List<string> Game = [];
 
@@ -14,6 +15,7 @@ public static class Arguments
 
         ReadArgument(ref arguments, "--skip-validation", ref SkipValidation);
         ReadArgument(ref arguments, "--debug", ref DebugEnabled);
+        ReadArgument(ref arguments, "--skip-updates", ref SkipUpdates);
 
         Game = arguments;
     }

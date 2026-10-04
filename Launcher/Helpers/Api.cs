@@ -16,13 +16,25 @@ public class ManifestResponse
     [JsonPropertyName("files")] public required List<ManifestFile> Files { get; set; }
 }
 
+public class GitHubRelease
+{
+    [JsonPropertyName("tag_name")] public required string TagName { get; set; }
+}
+
+public interface IGitHub
+{
+    [Headers("User-Agent: Harmony Launcher")]
+    [Get("/releases/latest")]
+    Task<GitHubRelease> GetLatestRelease();
+}
+
 public interface ILauncher
 {
-    [Headers("User-Agent: Launcher")]
+    [Headers("User-Agent: Harmony Launcher")]
     [Get("/launcher/verify")]
     Task<IApiResponse> GetVerify([AliasAs("game_token")] string gameToken);
 
-    [Headers("User-Agent: Launcher")]
+    [Headers("User-Agent: Harmony Launcher")]
     [Get("/launcher/manifest")]
     Task<ManifestResponse> GetManifest([AliasAs("game_token")] string gameToken);
 }
@@ -32,4 +44,5 @@ public static class Api
     public static string Url = "https://harmony.heapy.xyz/api";
     private static readonly RefitSettings Settings = new(new NewtonsoftJsonContentSerializer());
     public static ILauncher Launcher = RestService.For<ILauncher>(Url, Settings);
+    public static IGitHub GitHub = RestService.For<IGitHub>("https://api.github.com/repos/csharmony/launcher");
 }

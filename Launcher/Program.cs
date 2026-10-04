@@ -4,6 +4,8 @@ Terminal.PrintWelcome();
 
 Arguments.Initialize();
 
+await Update.CheckAsync();
+
 var gamePath = Steam.GetGamePath(4465480);
 if (string.IsNullOrWhiteSpace(gamePath))
 {

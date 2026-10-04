@@ -15,7 +15,7 @@ public static class Terminal
     public static void PrintWelcome()
     {
         AnsiConsole.MarkupLine(
-            $"[{PrimaryColor}]Harmony Launcher[/] [{SecondaryColor}]made by[/] [{PrimaryColor}]heapy[/]");
+            $"[{PrimaryColor}]Harmony Launcher v{Update.CurrentVersion()}[/] [{SecondaryColor}]made by[/] [{PrimaryColor}]heapy[/]");
     }
 
     public static void Print(object message)
@@ -51,5 +51,10 @@ public static class Terminal
     {
         AnsiConsole.MarkupLine(
             $"[{DebugColor}]{Markup.Escape(exception.StackTrace ?? exception.Message)}[/]");
+    }
+
+    public static async Task<bool> ConfirmAsync(object message)
+    {
+        return await AnsiConsole.ConfirmAsync($"[white on {InfoColor}] ? [/] {Markup.Escape(message.ToString()!)}");
     }
 }
