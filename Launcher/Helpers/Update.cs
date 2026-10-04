@@ -52,10 +52,13 @@ public static class Update
                 Terminal.Warning("You are not using the latest launcher version. Things might not work properly!");
             }
         }
-        catch
+        catch (Exception e)
         {
             Terminal.Error(
                 "An error occurred while checking launcher updates. Are you connected to the Internet?");
+
+            if (Debug.IsEnabled)
+                Terminal.Debug(e);
         }
     }
 

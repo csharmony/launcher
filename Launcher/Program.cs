@@ -1,9 +1,7 @@
 ﻿using Launcher.Helpers;
 
 Terminal.PrintWelcome();
-
 Arguments.Initialize();
-
 await Update.CheckAsync();
 
 var gamePath = Steam.GetGamePath(4465480);
@@ -34,7 +32,7 @@ if (OperatingSystem.IsLinux())
     Steam.LinuxRuntimeExecutable = Path.Combine(linuxRuntimePath, Steam.LinuxRuntimeExecutable);
 }
 
-await GameToken.Acquire();
+await Token.Acquire();
 
 if (Arguments.SkipValidation)
     Terminal.Warning("Skipping file validation. Your game might not work properly!");
@@ -42,7 +40,7 @@ else
 {
     try
     {
-        var manifestResponse = await Api.Launcher.GetManifest(GameToken.Value!);
+        var manifestResponse = await Api.Launcher.GetManifest(Token.Value!);
         await Files.Validate(manifestResponse.Files);
         await Files.Download(Files.Missing);
         await Files.Download(Files.Outdated);

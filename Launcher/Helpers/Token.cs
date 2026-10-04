@@ -11,9 +11,9 @@ class HttpSession(HttpServer server) : NetCoreServer.HttpSession(server)
         if (request.Method != "GET")
             return;
 
-        if (request.Url.StartsWith("/?game_token="))
+        if (request.Url.StartsWith("/?token="))
         {
-            GameToken.Value = request.Url.Replace("/?game_token=", "");
+            Token.Value = request.Url.Replace("/?token=", "");
 
             var response = new HttpResponse();
             response.SetBegin(307);
@@ -25,9 +25,9 @@ class HttpSession(HttpServer server) : NetCoreServer.HttpSession(server)
         else if (request.Url == "/success")
         {
             SendResponseAsync(
-                Response.MakeGetResponse("Harmony Game Token acquired. You can now close this page."));
+                Response.MakeGetResponse("Harmony authentication token acquired. You can now close this page."));
 
-            if (!string.IsNullOrWhiteSpace(GameToken.Value))
+            if (!string.IsNullOrWhiteSpace(Token.Value))
             {
                 // wait until response is sent then stop the server
                 await Task.Delay(1000);
@@ -70,15 +70,15 @@ class HttpServer(IPAddress address, int port) : NetCoreServer.HttpServer(address
     }
 }
 
-public static class GameToken
+public static class Token
 {
     public static string? Value;
     private static readonly HttpServer Server = new(IPAddress.Loopback, 47123);
 
     private static readonly string Comment =
-        "# DO NOT SHARE THIS FILE TO ANYONE - This is your Harmony Game Token\n# It is used (alongside other things) for authentication with our GC\n# Tip: You can reset your Game Token on our website if you shared it on accident\n";
+        "# DO NOT SHARE THIS FILE TO ANYONE - This is your authentication token.\n# It is used (alongside other things) for authentication with our GC.\n# Tip: You can reset your token on our website if you shared it on accident (for dedicated servers - create a new one).\n";
 
-    private static readonly string FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".do-not-share");
+    private static readonly string FilePath = Path.Combine(Steam.GamePath, "harmony/.do-not-share");
 
     public static async Task Acquire()
     {
@@ -98,7 +98,7 @@ public static class GameToken
                 catch (Exception e)
                 {
                     Terminal.Error(
-                        "An error occurred while verifying your Game Token. Are you connected to the Internet?");
+                        "An error occurred while verifying your authentication token. Are you connected to the Internet?");
 
                     if (Debug.IsEnabled)
                         Terminal.Debug(e);

@@ -33,8 +33,8 @@ public static class Game
         process.Start();
 
         Terminal.Success("Launched Harmony!");
-        if (Arguments.Game.Count > 0)
-            Terminal.Print($"Arguments: {string.Join(" ", Arguments.Game)}");
+        if (Arguments.List.Count > 0)
+            Terminal.Print($"Arguments: {Arguments.ToString()}");
 
         await process.WaitForExitAsync();
         if (Debug.IsEnabled)

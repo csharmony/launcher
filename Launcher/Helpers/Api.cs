@@ -32,11 +32,11 @@ public interface ILauncher
 {
     [Headers("User-Agent: Harmony Launcher")]
     [Get("/launcher/verify")]
-    Task<IApiResponse> GetVerify([AliasAs("game_token")] string gameToken);
+    Task<IApiResponse> GetVerify([AliasAs("token")] string token);
 
     [Headers("User-Agent: Harmony Launcher")]
     [Get("/launcher/manifest")]
-    Task<ManifestResponse> GetManifest([AliasAs("game_token")] string gameToken);
+    Task<ManifestResponse> GetManifest([AliasAs("token")] string token);
 }
 
 public static class Api

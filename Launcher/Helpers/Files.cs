@@ -110,7 +110,7 @@ public static class Files
                         };
 
                         await downloader.DownloadFileTaskAsync(
-                            Api.Url + $"/launcher/download?game_token={GameToken.Value}&file_path={file.Path}",
+                            Api.Url + $"/launcher/download?token={Token.Value}&file_path={file.Path}",
                             fullFilePath);
                     });
 
