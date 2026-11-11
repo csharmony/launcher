@@ -12,10 +12,21 @@ on:
         default: false
 
 jobs:
-  draft-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            artifact: Launcher.exe
+            output: publish-windows
+            publish-args: ''
+          - os: ubuntu-latest
+            rid: linux-x64
+            artifact: Launcher_linux64
+            output: publish-linux
+            publish-args: '-p:AssemblyName=Launcher_linux64 -p:StripSymbols=true'
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,18 +36,34 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - run: dotnet restore Launcher.slnx
-      
-      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained false -p:Version=${{ inputs.tag }} -o ./publish-windows
-      - run: dotnet publish Launcher/Launcher.csproj -c Release -r linux-x64 --self-contained false -p:AssemblyName=Launcher_linux64 -p:Version=${{ inputs.tag }} -o ./publish-linux
-      - run: dotnet publish Launcher/Launcher.csproj -c Release -r win-x64 --self-contained true -p:AssemblyName=Launcher-sc -p:Version=${{ inputs.tag }} -o ./publish-windows-sc
-      - run: dotnet publish Launcher/Launcher.csproj -c Release -r linux-x64 --self-contained true -p:AssemblyName=Launcher-sc_linux64 -p:Version=${{ inputs.tag }} -o ./publish-linux-sc
+      - name: Install Linux AOT prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev libbrotli-dev
+
+      - name: Publish
+        run: dotnet publish Launcher/Launcher.csproj -c Release -r ${{ matrix.rid }} -p:Version=${{ inputs.tag }} ${{ matrix.publish-args }} -o ./${{ matrix.output }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output }}
+          path: ./${{ matrix.output }}/${{ matrix.artifact }}
+          if-no-files-found: error
+
+  draft-release:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
 
       - name: Calculate MD5
         shell: bash
         run: |
-          echo "MD5_HASH_WINDOWS=$(md5sum ./publish-windows/Launcher.exe | cut -d' ' -f1)" >> $GITHUB_ENV
-          echo "MD5_HASH_LINUX=$(md5sum ./publish-linux/Launcher_linux64 | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "MD5_HASH_WINDOWS=$(md5sum ./artifacts/publish-windows/Launcher.exe | cut -d' ' -f1)" >> $GITHUB_ENV
+          echo "MD5_HASH_LINUX=$(md5sum ./artifacts/publish-linux/Launcher_linux64 | cut -d' ' -f1)" >> $GITHUB_ENV
 
       - name: Upload to VirusTotal
         id: vt
@@ -45,8 +72,8 @@ jobs:
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           file_globs: |
-            ./publish-windows/Launcher.exe
-            ./publish-linux/Launcher_linux64
+            ./artifacts/publish-windows/Launcher.exe
+            ./artifacts/publish-linux/Launcher_linux64
           update_release: false
           sha256: true
           summary: false
@@ -56,11 +83,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo '> [!IMPORTANT]' > body.md
-          echo '> .NET Runtime 10.0 is required to run the normal variant of the launcher (`Launcher.exe`, `Launcher_linux64`). Download it from [**here**](https://dotnet.microsoft.com/en-us/download/dotnet/10.0#runtime-10.0.10).' >> body.md
-          echo '> If you do not want to download .NET Runtime 10.0, you can use the **self-contained** variant instead (`Launcher-sc.exe`, `Launcher-sc_linux64`). It has .NET Runtime 10.0 inside the executable, making the size around 80MB.' >> body.md
-          echo '' >> body.md
-
           echo '## Changelog' >> body.md
           gh api /repos/${{ github.repository }}/releases/generate-notes \
             -f tag_name='${{ inputs.tag }}' \
@@ -96,7 +118,5 @@ jobs:
           body_path: body.md
           prerelease: ${{ inputs.prerelease }}
           files: |
-            ./publish-windows/Launcher.exe
-            ./publish-windows-sc/Launcher-sc.exe
-            ./publish-linux/Launcher_linux64
-            ./publish-linux-sc/Launcher-sc_linux64
+            ./artifacts/publish-windows/Launcher.exe
+            ./artifacts/publish-linux/Launcher_linux64

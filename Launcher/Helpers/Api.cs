@@ -39,10 +39,21 @@ public interface ILauncher
     Task<ManifestResponse> GetManifest([AliasAs("token")] string token);
 }
 
+// Refit.Newtonsoft.Json doesnt work on AOT builds,
+// use this instead
+[JsonSerializable(typeof(ManifestResponse))]
+[JsonSerializable(typeof(GitHubRelease))]
+internal partial class ApiJsonContext : JsonSerializerContext;
+
 public static class Api
 {
     public static string Url = "https://harmony.heapy.xyz/api";
-    private static readonly RefitSettings Settings = new(new NewtonsoftJsonContentSerializer());
+
+    private static readonly RefitSettings Settings =
+        new(new SystemTextJsonContentSerializer(ApiJsonContext.Default.Options));
+
     public static ILauncher Launcher = RestService.For<ILauncher>(Url, Settings);
-    public static IGitHub GitHub = RestService.For<IGitHub>("https://api.github.com/repos/csharmony/launcher");
+
+    public static IGitHub GitHub =
+        RestService.For<IGitHub>("https://api.github.com/repos/csharmony/launcher", Settings);
 }
