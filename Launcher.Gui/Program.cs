@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Media.Fonts;
-using System;
 
 namespace Launcher.Gui;
 

@@ -5,4 +5,7 @@
   <Project Path="Launcher/Launcher.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <Project Path="Launcher.Gui/Launcher.Gui.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
 </Solution>
