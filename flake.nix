@@ -20,6 +20,24 @@
           zlib
           brotli
         ];
+
+        # for running Avalonia through X11
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (
+          with pkgs;
+          [
+            fontconfig
+            libx11
+            libice
+            libsm
+            libxcursor
+            libxrandr
+            libxi
+            libxext
+            libxfixes
+            libglvnd
+            mesa
+          ]
+        );
       };
     };
 }
