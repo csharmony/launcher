@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Media.Fonts;
 using System;
 
 namespace Launcher.Gui;
@@ -20,5 +21,8 @@ class Program
             .WithDeveloperTools()
 #endif
             .WithInterFont()
+            .ConfigureFonts(fontManager => fontManager.AddFontCollection(new EmbeddedFontCollection(
+                new Uri("fonts:Geist", UriKind.Absolute),
+                new Uri($"avares://{typeof(Program).Assembly.GetName().Name}/Assets/Fonts", UriKind.Absolute))))
             .LogToTrace();
 }
