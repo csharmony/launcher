@@ -2,7 +2,7 @@
 
 Terminal.PrintWelcome();
 Arguments.Initialize();
-await Update.CheckAsync();
+await Updates.CheckAsync();
 
 var gamePath = Steam.GetGamePath(4465480);
 if (string.IsNullOrWhiteSpace(gamePath))

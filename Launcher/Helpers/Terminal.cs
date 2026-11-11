@@ -15,7 +15,7 @@ public static class Terminal
     public static void PrintWelcome()
     {
         AnsiConsole.MarkupLine(
-            $"[{PrimaryColor}]Harmony Launcher v{Update.CurrentVersion()}[/] [{SecondaryColor}]made by[/] [{PrimaryColor}]heapy[/]");
+            $"[{PrimaryColor}]Harmony Launcher v{Updates.CurrentVersion()}[/] [{SecondaryColor}]made by[/] [{PrimaryColor}]heapy[/]");
     }
 
     public static void Print(object message)
