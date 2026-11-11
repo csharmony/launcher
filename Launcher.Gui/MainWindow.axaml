@@ -4,9 +4,140 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="Launcher.Gui"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    xmlns:ti="using:TablerIcons"
+    Title="Harmony Launcher"
+    Width="960"
+    Height="760"
+    Background="{DynamicResource Background}"
+    FontFamily="{DynamicResource FontSans}"
+    Foreground="{DynamicResource Foreground}"
+    PointerPressed="OnWindowPointerPressed"
     mc:Ignorable="d">
-    Welcome to Avalonia!
+    <ScrollViewer>
+        <StackPanel
+            MaxWidth="880"
+            Margin="40,32"
+            Spacing="28">
+            <StackPanel Spacing="4">
+                <TextBlock
+                    FontSize="40"
+                    FontWeight="ExtraBold"
+                    Foreground="{DynamicResource Primary}"
+                    Text="Harmony" />
+                <TextBlock
+                    FontSize="14"
+                    Foreground="{DynamicResource MutedForeground}"
+                    Text="Avalonia theme test" />
+            </StackPanel>
+
+            <StackPanel Spacing="12">
+                <TextBlock
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    Text="Buttons" />
+
+                <WrapPanel ItemSpacing="8" LineSpacing="8">
+                    <Button Content="Primary" />
+                    <Button Classes="primary" Content="Primary (explicit)" />
+                    <Button Classes="secondary" Content="Secondary" />
+                    <Button Classes="outline" Content="Outline" />
+                    <Button Classes="ghost" Content="Ghost" />
+                    <Button Classes="destructive" Content="Destructive" />
+                    <Button Content="Disabled" IsEnabled="False" />
+                </WrapPanel>
+
+                <WrapPanel ItemSpacing="8" LineSpacing="8">
+                    <Button Classes="xs" Content="Extra small" />
+                    <Button Classes="sm" Content="Small" />
+                    <Button Content="Default" />
+                    <Button Classes="lg" Content="Large" />
+
+                    <Button Classes="icon" ToolTip.Tip="Icon button">
+                        <ti:TablerIcon
+                            Width="16"
+                            Height="16"
+                            Icon="IconBrandDiscord" />
+                    </Button>
+
+                    <Button Classes="outline">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <ti:TablerIcon
+                                Width="16"
+                                Height="16"
+                                Icon="IconPlayerPlay" />
+                            <TextBlock Text="Play" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+            </StackPanel>
+
+            <StackPanel Spacing="12">
+                <TextBlock
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    Text="Badges" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Classes="badge">
+                        <TextBlock Text="Primary" />
+                    </Border>
+                    <Border Classes="badge secondary">
+                        <TextBlock Text="Secondary" />
+                    </Border>
+                    <Border Classes="badge outline">
+                        <TextBlock Text="Outline" />
+                    </Border>
+                    <Border Classes="badge destructive">
+                        <TextBlock Text="Destructive" />
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Spacing="12">
+                <TextBlock
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    Text="Inputs" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <TextBox PlaceholderText="Hello, World!" />
+                    <ComboBox Grid.Column="1" SelectedIndex="0">
+                        <ComboBoxItem Content="Item #1" />
+                        <ComboBoxItem Content="Item #2" />
+                        <ComboBoxItem Content="Item #3" />
+                    </ComboBox>
+                </Grid>
+
+                <CheckBox Content="Checked option" IsChecked="True" />
+                <CheckBox Content="Unchecked option" />
+            </StackPanel>
+
+            <StackPanel Spacing="12">
+                <TextBlock
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    Text="Progress" />
+                <ProgressBar Value="72" />
+                <ProgressBar Maximum="100" Value="35" />
+            </StackPanel>
+
+            <Separator />
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                    Classes="outline"
+                    Content="Hover for tooltip"
+                    ToolTip.Tip="Popover tooltip" />
+                <Button Classes="ghost" Content="Ghost with icon">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ti:TablerIcon
+                            Width="16"
+                            Height="16"
+                            Icon="IconSettings" />
+                        <TextBlock Text="Settings" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </Window>
