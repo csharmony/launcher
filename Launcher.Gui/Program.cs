@@ -21,7 +21,7 @@ class Program
 #endif
             .WithInterFont()
             .ConfigureFonts(fontManager => fontManager.AddFontCollection(new EmbeddedFontCollection(
-                new Uri("fonts:Geist", UriKind.Absolute),
+                new Uri("fonts://", UriKind.Absolute),
                 new Uri($"avares://{typeof(Program).Assembly.GetName().Name}/Assets/Fonts", UriKind.Absolute))))
             .LogToTrace();
 }
