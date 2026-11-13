@@ -12,6 +12,7 @@
     FontFamily="{DynamicResource FontSans}"
     Foreground="{DynamicResource Foreground}"
     PointerPressed="OnWindowPointerPressed"
+    WindowDecorations="None"
     mc:Ignorable="d">
     <ScrollViewer>
         <StackPanel
@@ -38,7 +39,6 @@
 
                 <WrapPanel ItemSpacing="8" LineSpacing="8">
                     <Button Content="Primary" />
-                    <Button Classes="primary" Content="Primary (explicit)" />
                     <Button Classes="secondary" Content="Secondary" />
                     <Button Classes="outline" Content="Outline" />
                     <Button Classes="ghost" Content="Ghost" />
@@ -128,7 +128,7 @@
                     Classes="outline"
                     Content="Hover for tooltip"
                     ToolTip.Tip="Popover tooltip" />
-                <Button Classes="ghost" Content="Ghost with icon">
+                <Button Classes="ghost">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <ti:TablerIcon
                             Width="16"

@@ -21,11 +21,14 @@
           brotli
         ];
 
-        # for running Avalonia through X11
+        # for running Avalonia
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (
           with pkgs;
           [
+            # common
             fontconfig
+
+            # x11
             libx11
             libice
             libsm
@@ -34,6 +37,14 @@
             libxi
             libxext
             libxfixes
+
+            # wayland
+            wayland
+            libxkbcommon
+            libgbm
+            libdrm
+
+            # gpu acceleration
             libglvnd
             mesa
           ]
